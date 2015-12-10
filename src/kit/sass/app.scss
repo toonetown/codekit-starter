@@ -4,6 +4,9 @@
 /* IE 10 viewport hack - see http://getbootstrap.com/getting-started/#support-ie10-width */
 @import "_ie-10-viewport-hack.scss";
 
+/* FontAwesome */
+@import "../../bower_components/font-awesome/scss/font-awesome.scss";
+
 body {
     padding-top: 50px;
 }
