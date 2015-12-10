@@ -1,0 +1,32 @@
+#!/bin/bash
+# Installs a codekit-starter project
+
+DIR="${1-codekit-starter}"
+git clone -b project-base -o codekit-starter https://github.com/toonetown/codekit-starter.git "${DIR}" || exit $?
+
+PROJECT_NAME=""
+while [ -z "${PROJECT_NAME}" ]; do
+    read -p "Please enter a project name: " PROJECT_NAME
+done
+
+sed -i .bak "s;CodeKit Starter;${PROJECT_NAME};" "${DIR}/config.codekit"    || exit $?
+find "${DIR}" -name "*.bak" -exec rm -f {} \;                               || exit $?
+
+GIT="git -C ${DIR}"
+${GIT} add -A && ${GIT} rm -f README.md install                 && \
+${GIT} commit --amend --reset-author --no-edit                  && \
+${GIT} branch --unset-upstream                                  && \
+${GIT} branch -m master                                         && \
+${GIT} checkout -b codekit-starter codekit-starter/master       && \
+${GIT} checkout master                                          && \
+${GIT} merge -X theirs refs/heads/codekit-starter --no-commit   && \
+${GIT} diff --staged -U1 config.codekit | \
+    grep -B2 -A1 'displayValue'         | \
+    patch -R "${DIR}/config.codekit"                            && \
+${GIT} add -A && ${GIT} commit --no-edit || exit $?
+
+echo ""
+echo "Project is set up at '${DIR}' - opening now"
+echo ""
+
+open -a CodeKit "${DIR}"
